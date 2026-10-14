@@ -159,3 +159,22 @@ nav {
 .projects h2 {
     margin-bottom: 15px;
 }
+
+.project-card {
+    max-width: 500px;
+    margin: 20px auto 0;
+    padding: 25px;
+    background: #1e293b;
+    border-radius: 12px;
+    border: 1px solid #38bdf8;
+}
+
+.project-card h3 {
+    color: #38bdf8;
+    margin-bottom: 12px;
+}
+
+.project-card p {
+    color: #cbd5e1;
+    line-height: 1.8;
+}
