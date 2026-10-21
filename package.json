@@ -1,0 +1,15 @@
+{
+  "name": "devops-v",
+  "version": "1.0.0",
+  "description": "Portfolio Website with DevOps CI/CD",
+  "scripts": {
+    "lint:html": "html-validate index.html",
+    "lint:css": "stylelint style.css",
+    "test": "npm run lint:html && npm run lint:css"
+  },
+  "devDependencies": {
+    "html-validate": "^8.0.0",
+    "stylelint": "^16.0.0",
+    "stylelint-config-standard": "^36.0.0"
+  }
+}

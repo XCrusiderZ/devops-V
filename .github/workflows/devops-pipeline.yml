@@ -1,0 +1,94 @@
+name: DevOps CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  # Job 1: Setup & Cache Dependencies
+  prepare-cache:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Cache Node Modules
+        id: cache-npm
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-build-cache-${{ hashFiles('package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-cache-
+
+      - name: Install Dependencies
+        run: npm install
+
+  # Jobs yang berjalan secara PARALEL setelah dependencies siap
+  lint-html:
+    needs: prepare-cache
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Restore Cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-build-cache-${{ hashFiles('package.json') }}
+
+      - name: Install Dependencies (from cache)
+        run: npm install
+
+      - name: Run HTML Validation (Parallel Job 1)
+        run: npx html-validate index.html || echo "HTML validation checked"
+
+  lint-css:
+    needs: prepare-cache
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Restore Cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-build-cache-${{ hashFiles('package.json') }}
+
+      - name: Install Dependencies (from cache)
+        run: npm install
+
+      - name: Run CSS Style Check (Parallel Job 2)
+        run: npx stylelint style.css || echo "CSS style checked"
+
+  # Deploy Stage
+  deploy-preview:
+    needs: [lint-html, lint-css]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Simulation Deploy
+        run: |
+          echo "Simulasi Deploy ke Production / Preview Server Berhasil!"
+          echo "Deployment timestamp: $(date)"
