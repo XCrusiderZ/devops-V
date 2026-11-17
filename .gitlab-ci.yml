@@ -1,0 +1,56 @@
+stages:
+  - prepare
+  - test
+  - build
+  - deploy
+
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - node_modules/
+    - .npm/
+
+install_dependencies:
+  stage: prepare
+  image: node:20.18.1-alpine3.20
+  script:
+    - npm install --cache .npm --prefer-offline
+
+unit_test:
+  stage: test
+  image: node:20.18.1-alpine3.20
+  needs: ["install_dependencies"]
+  script:
+    - npm test
+
+lint_html:
+  stage: test
+  image: node:20.18.1-alpine3.20
+  needs: ["install_dependencies"]
+  script:
+    - npm run lint:html
+
+lint_css:
+  stage: test
+  image: node:20.18.1-alpine3.20
+  needs: ["install_dependencies"]
+  script:
+    - npm run lint:css
+
+docker_build:
+  stage: build
+  image: docker:27.3.1
+  services:
+    - docker:27.3.1-dind
+  needs: ["unit_test", "lint_html", "lint_css"]
+  script:
+    - docker build -t devops-v:1.0.0 .
+
+deploy_preview:
+  stage: deploy
+  image: alpine:3.20.3
+  needs: ["docker_build"]
+  only:
+    - main
+  script:
+    - echo "Deploy portfolio statis devops-v:1.0.0 berhasil!"
